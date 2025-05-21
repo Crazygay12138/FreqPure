@@ -62,6 +62,7 @@ class PurificationForward(torch.nn.Module):
         self.sample_steps = ddim_steps
         self.timesteps = get_ddim_steps(self.num_train_timesteps,self.sample_steps,self.strength)
         self.eta=0.0
+        self.doFFT = True
 
         self.betas = get_beta_schedule(1e-4, 2e-2, 1000)
         self.alphas = 1. - self.betas
@@ -286,8 +287,8 @@ class PurificationForward(torch.nn.Module):
             sqrt_alphas_cumprod_t = alphas_cumprod_t ** 0.5
             sqrt_one_minus_alphas_cumprod_t = (1.0 - alphas_cumprod_t) ** 0.5
             x_0_t = (x_t - sqrt_one_minus_alphas_cumprod_t * pred_noise) / sqrt_alphas_cumprod_t
-
-            x_0_t = self.amplitude_phase_exchange(x,x_0_t,t)
+            if self.doFFT:
+                x_0_t = self.amplitude_phase_exchange(x,x_0_t,t)
 
             first_term = sqrt_alphas_cumprod_tau * x_0_t
 
